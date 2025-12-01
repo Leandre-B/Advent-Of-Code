@@ -2,21 +2,21 @@
 #include <fstream>
 
 
-void part1(uint & password, const std::string & mouvement, int & cur){
-    int dpl = std::stoi(mouvement.substr(1, mouvement.length()));
-    if(mouvement[0]=='L')
-        cur=((cur - dpl) %100 + 100)%100; //get positive mod
-    else
-        cur=((cur + dpl) %100 + 100)%100; //get positive mod
-    
-    if(cur== 0)
-        ++password;
+void part2(uint & password, const std::string & mouvement, int & cur){
+    int dpl = std::stoi(mouvement.substr(1));
+    for(int i=0; i<dpl; ++i){
+        if(mouvement[0]=='L')
+            cur=((cur - 1) %100 + 100)%100;
+        else
+            cur=((cur + 1) %100 + 100)%100;
+        if(cur== 0)
+            ++password;
+    }
 }
 
 
-void part2(uint & password, const std::string & mouvement, int & cur){
-    int dpl = std::stoi(mouvement.substr(1, mouvement.length()));
-    uint tour = dpl/100;
+void part1(uint & password, const std::string & mouvement, int & cur){
+    int dpl = std::stoi(mouvement.substr(1));
     if(mouvement[0]=='L')
         cur=((cur - dpl) %100 + 100)%100; //get positive mod
     else
@@ -24,7 +24,6 @@ void part2(uint & password, const std::string & mouvement, int & cur){
     
     if(cur== 0)
         ++password;
-    password+=tour;
 }
 
 int main(){
