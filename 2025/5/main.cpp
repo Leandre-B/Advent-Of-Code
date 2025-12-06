@@ -19,47 +19,29 @@ bool is_fresh(std::vector <FreshRange> & fresh_ranges, const long long & id){
     return false;
 }
 
-void check_overlap(std::vector <FreshRange> & fresh_ranges, const FreshRange & range){
+void check_overlap(std::vector <FreshRange> & fresh_ranges, FreshRange & range){
     if(fresh_ranges.size()==0)
         fresh_ranges.push_back(range);
     else{
-        for(int i=0; i<fresh_ranges.size(); ++i){
-            //si range inclue dans la range[i]
-            if(range.start>=fresh_ranges[i].start and
-               range.end<=fresh_ranges[i].end
-            )
-                return;
+        bool merge=true;
+        while(merge){
+            merge = false;
+            int i=0;
+            while(i<fresh_ranges.size()){
 
-            //si range[i] inclue dans la range
-            if(range.start<fresh_ranges[i].start and
-                range.end>fresh_ranges[i].end
-            ){
-                fresh_ranges[i].start = range.start;
-                fresh_ranges[i].end = range.end;
-                return;
+                //si on peut fusionner les intervalles
+                if(!(range.start>fresh_ranges[i].end or
+                range.end<fresh_ranges[i].start))
+                {
+                    range.start = std::min(fresh_ranges[i].start, range.start);
+                    range.end = std::max(fresh_ranges[i].end, range.end);
+
+                    fresh_ranges.erase(fresh_ranges.begin()+i);
+                    merge = true;
+                }else
+                    ++i;
             }
-
-            //si partie droite de la range dépasse overlap la partie gauche
-            if(range.end>fresh_ranges[i].end and range.start<=fresh_ranges[i].end){
-                fresh_ranges[i].end = range.end;
-                FreshRange new_range = fresh_ranges[i];
-                fresh_ranges.erase(fresh_ranges.begin()+i);
-                check_overlap(fresh_ranges, new_range);
-                return;
-            }
-
-            //si partie gauche de la range dépasse overlap la partie droite
-            if(range.start<fresh_ranges[i].start and range.end>=fresh_ranges[i].start){
-                fresh_ranges[i].start = range.start;
-                FreshRange new_range = fresh_ranges[i];
-                fresh_ranges.erase(fresh_ranges.begin()+ i);
-                check_overlap(fresh_ranges, new_range);
-                return;
-            }
-
         }
-
-        //sinon, aucune corrélation
         fresh_ranges.push_back(range);
     }
 }
