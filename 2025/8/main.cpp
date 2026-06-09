@@ -61,7 +61,7 @@ int main(){
         std::getline(fic, ligne);
         b.z = std::stoi(ligne);
         boxes.push_back(b);
-        std::cout<<b.x<<" "<<b.y<<" "<<b.z<<"\n";
+        //std::cout<<b.x<<" "<<b.y<<" "<<b.z<<"\n";
     }
     std::cout<<"\n\n";
 
@@ -71,29 +71,46 @@ int main(){
     });
 
     //test  : 10 shortest connections
-    c.erase(c.begin()+1000, c.end());
-    for(int i=0; i<c.size(); ++i){
-        std::cout<<distance(*c[i].A, *c[i].B)<<" : ("<<c[i].A->x<<", "<<c[i].A->y<<", "<<c[i].A->z<<") - ("
-                 <<c[i].B->x<<", "<<c[i].B->y<<", "<<c[i].B->z<<")\n";
-    }
+    //c.erase(c.begin()+24, c.end());
+    // for(int i=0; i<c.size(); ++i){
+    //     std::cout<<i<<" : "<<distance(*c[i].A, *c[i].B)<<" : ("<<c[i].A->x<<", "<<c[i].A->y<<", "<<c[i].A->z<<") - ("
+    //              <<c[i].B->x<<", "<<c[i].B->y<<", "<<c[i].B->z<<")\n";
+    // }
 
     int id=1;
+    int cluster = 0;
+    int last = 0;
+    Connexion lastConnection;
     for(int i=0; i<c.size(); ++i){
+        // std::cout<<i<<" : "<<distance(*c[i].A, *c[i].B)<<" : ("<<c[i].A->x<<", "<<c[i].A->y<<", "<<c[i].A->z<<") - ("
+        //          <<c[i].B->x<<", "<<c[i].B->y<<", "<<c[i].B->z<<")\n";
+
         if(c[i].A->circuit_id == -1 and c[i].B->circuit_id == -1){
+            ++cluster;
             c[i].A->circuit_id = id;
             c[i].B->circuit_id = id;
             ++id;
         }else if(c[i].A->circuit_id != -1 and c[i].B->circuit_id == -1){
+            if(cluster==1)
+                lastConnection = c[i];
             c[i].B->circuit_id = c[i].A->circuit_id;
         }
         else if(c[i].A->circuit_id == -1 and c[i].B->circuit_id != -1){
+            if(cluster==1)
+                lastConnection = c[i];
             c[i].A->circuit_id = c[i].B->circuit_id;
         }else if(c[i].A->circuit_id != c[i].B->circuit_id){
+            --cluster;
+            std::cout<<"cluster : "<<cluster<<"\n";
+            if(cluster==1){
+                lastConnection = c[i];
+                last = i;
+            }
             int aux_id = c[i].B->circuit_id;
             //c[i].B->circuit_id = c[i].A->circuit_id;
             for(int j=0; j<boxes.size(); ++j){
                 if(boxes[j].circuit_id == aux_id){
-                    std::cout<<"Hey ! : "<<boxes[j].x<<"\n";
+                    //std::cout<<"Hey ! : "<<boxes[j].x<<"\n";
                     boxes[j].circuit_id = c[i].A->circuit_id;
                 }
             }
@@ -101,9 +118,9 @@ int main(){
         }
     }
 
-    std::sort(boxes.begin(), boxes.end(), [](const Boxe& a, const Boxe& b) {
-        return a.circuit_id < b.circuit_id;
-    });
+    // std::sort(boxes.begin(), boxes.end(), [](const Boxe& a, const Boxe& b) {
+    //     return a.circuit_id < b.circuit_id;
+    // });
 
     for(int i=0; i<boxes.size(); ++i){
         std::cout<<boxes[i].circuit_id<<" : "<<boxes[i].x<<" "<<boxes[i].y<<" "<<boxes[i].z<<" ("<<boxes[i].circuit_size<<")\n";
@@ -127,7 +144,17 @@ int main(){
     std::sort(tots.begin(), tots.end(), [](const int& a, const int& b){
         return a>b;
     });
-    std::cout<<tots[0]<<" "<<tots[1]<<" "<<tots[2]<<"\n"<<tots[0]*tots[1]*tots[2]<<"\n";
+    //std::cout<<tots[0]<<" "<<tots[1]<<" "<<tots[2]<<"\n"<<tots[0]*tots[1]*tots[2]<<"\n";
+    std::cout<<"\n\n"<<cluster<<"\n";
+    std::cout<<"["<<last<<"] ("
+             <<lastConnection.A->x<<", "
+             <<lastConnection.A->y<<", "
+             <<lastConnection.A->z<<") - ("
+             <<lastConnection.B->x<<", "
+             <<lastConnection.B->y<<", "
+             <<lastConnection.B->z<<")\n";
+    
+    std::cout<<(long)lastConnection.A->x * (long)lastConnection.B->x<<"\n";
 
 
     return 0;
